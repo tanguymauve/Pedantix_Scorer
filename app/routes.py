@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, flash, redirect, url_for, request
 from app.forms import LoginForm, RegistrationForm, ScoreForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User
+from app.models import User, Score
 from werkzeug.urls import url_parse
 
 @app.route('/')
@@ -13,9 +13,13 @@ def index():
 @app.route('/scorer', methods=['GET', 'POST'])
 @login_required
 def scorer():
-    form = ScoreForm() 
+    form = ScoreForm()
     if form.validate_on_submit():
         flash('Score submitted successfully!')
+        score_value = form.score.data
+        score = Score(score=score_value, user_id=current_user.id)
+        db.session.add(score)
+        db.session.commit()
     return render_template('scorer.html', title='Scorer', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])

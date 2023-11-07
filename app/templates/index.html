@@ -23,7 +23,7 @@
           {% if current_user.is_anonymous %}
               <a href="{{ url_for('login') }}">Se connecter</a>
           {% elif current_user.is_authenticated %}
-              {{ current_user.username }}
+              <h3>{{ current_user.username }}</h3>
             </div>
             <div>
               <a href="{{ url_for('logout') }}">Se déconnecter</a>
@@ -33,7 +33,6 @@
       </div>
   </header>
   <div class="container">
-    <h1>Classement</h1>
     <div>
       <h1>Bonjour {{ current_user.username }}!</h1>
       {% for post in posts %}

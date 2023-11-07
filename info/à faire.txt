@@ -1,15 +1,14 @@
-to setup a db in the python script:
->>> from app import app, db
->>> from app.models import User, Post
->>> app.app_context().push()
->>> new_user = User(username='john', email='john@example.com')
->>> db.session.add(u)
->>> db.session.commit()
->>> users = User.query.all()
->>> users
-[<User john>, <User susan>]
+POUR DEVELOPPEMENT :
+Créer le bloc classement et son affichage
 
-Une fois que le setup de la sb des scores est fait, il faut mettre l'argument
- dans routes.py ("index.html", title='Home Page', posts=posts) en remplacant par score = score ou je ne sais quoi
 
-Changer SECRET_KEY dans config.py
+
+
+
+POUR DEPLOIEMENT :
+Changer SECRET_KEY dans config.py lors du déploiement
+
+Vérifier les bugs de messages d'erreurs : 
+    - apparaissent sans prévenir => pourquoi ?
+
+Vider la db avant déploiement
