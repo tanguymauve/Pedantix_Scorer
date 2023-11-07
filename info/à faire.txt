@@ -1,0 +1,15 @@
+to setup a db in the python script:
+>>> from app import app, db
+>>> from app.models import User, Post
+>>> app.app_context().push()
+>>> new_user = User(username='john', email='john@example.com')
+>>> db.session.add(u)
+>>> db.session.commit()
+>>> users = User.query.all()
+>>> users
+[<User john>, <User susan>]
+
+Une fois que le setup de la sb des scores est fait, il faut mettre l'argument
+ dans routes.py ("index.html", title='Home Page', posts=posts) en remplacant par score = score ou je ne sais quoi
+
+Mettre tout en français.
