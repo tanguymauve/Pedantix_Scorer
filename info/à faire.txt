@@ -12,4 +12,4 @@ to setup a db in the python script:
 Une fois que le setup de la sb des scores est fait, il faut mettre l'argument
  dans routes.py ("index.html", title='Home Page', posts=posts) en remplacant par score = score ou je ne sais quoi
 
-Mettre tout en français.
+Changer SECRET_KEY dans config.py

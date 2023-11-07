@@ -10,13 +10,12 @@
     <header class="container text-center py-4">
         <div class="row">
             <div class="col justify-content-start">
-                <h3>Pedantix Scorer</h3>
+                <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
             </div>
             <div class="col">
                 <h3>Connexion</h3>
             </div>
             <div class="col">
-                <button>Ajouter un score</button>
             </div>
         </div>
     </header>
@@ -42,7 +41,7 @@
                     </p>
                     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
                     <p>{{ form.submit() }}</p>
-                    <p>New User? <a href="{{ url_for('register') }}">Click to Register!</a></p>
+                    <p>Nouvel utilisateur? <a href="{{ url_for('register') }}">Cliquez ici pour vous enregistrer</a></p>
                 </form>
             </div>
         </div>

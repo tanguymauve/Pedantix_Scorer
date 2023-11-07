@@ -10,27 +10,32 @@
   <header class="container text-center py-4">
       <div class="row">
         <div class="col justify-content-start" >
-          <h3>Pedantix Scorer</h3>
+          <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
         </div>
         <div class="col">
           <h3>Accueil</h3>
         </div>
         <div class="col">
-          <button>Ajouter un score</button>
+          <a href="{{ url_for('scorer') }}" class="btn btn-primary">Ajouter un score</a>
         </div>
         <div class="col">
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Se connecter</a>
-            {% else %}
-            <a href="{{ url_for('logout') }}">Se déconnecter</a>
-            {% endif %}
+          <div>
+          {% if current_user.is_anonymous %}
+              <a href="{{ url_for('login') }}">Se connecter</a>
+          {% elif current_user.is_authenticated %}
+              {{ current_user.username }}
+            </div>
+            <div>
+              <a href="{{ url_for('logout') }}">Se déconnecter</a>
+          {% endif %}
+            </div>
         </div>
       </div>
   </header>
   <div class="container">
     <h1>Classement</h1>
     <div>
-      <h1>Hi, {{ current_user.username }}!</h1>
+      <h1>Bonjour {{ current_user.username }}!</h1>
       {% for post in posts %}
       <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
       {% endfor %}

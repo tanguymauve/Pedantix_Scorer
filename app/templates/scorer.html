@@ -10,19 +10,30 @@
   <header class="container text-center py-4">
       <div class="row">
         <div class="col justify-content-start" >
-          <h3>Pedantix Scorer</h3>
+            <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
         </div>
         <div class="col">
           <h3>Scorer</h3>
         </div>
         <div class="col">
-            {{current_user.username}}
+           <h3> {{current_user.username}}</h3>
         </div>
     </header>
     <div class="container">
         <h1>Scorer</h1>
-        <div >
-         
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <form action="" method="post">
+                        {{ form.hidden_tag() }}
+                        <p>
+                            {{ form.score.label }}<br>
+                            {{ form.score(size=16) }}
+                        </p>
+                        <p>{{ form.submit() }}</p>
+                    </form>
+                </div>
+            </div>
         </div>
       </div>
     </body>

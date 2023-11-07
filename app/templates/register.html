@@ -10,7 +10,7 @@
     <header class="container text-center py-4">
         <div class="row">
             <div class="col justify-content-start">
-                <h3>Pedantix Scorer</h3>
+                <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
             </div>
             <div class="col">
                 <h3>Inscription</h3>
@@ -35,7 +35,7 @@
                     </p>
                     <p>
                         {{ form.email.label }}<br>
-                        {{ form.email(size=64) }}<br>
+                        {{ form.email(size=32) }}<br>
                         {% for error in form.email.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
