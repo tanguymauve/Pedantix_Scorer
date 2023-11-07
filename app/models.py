@@ -20,7 +20,6 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
-#à modifier avec les scores des users ? 
 class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer)
