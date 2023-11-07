@@ -5,10 +5,19 @@ Créer le bloc classement et son affichage
 
 
 
+
 POUR DEPLOIEMENT :
 Changer SECRET_KEY dans config.py lors du déploiement
 
 Vérifier les bugs de messages d'erreurs : 
     - apparaissent sans prévenir => pourquoi ?
 
-Vider la db avant déploiement
+Vider la db avant déploiement avec
+
+from app import app, db
+app.app_context().push()
+db.drop_all()
+
+THEN 
+
+db.create_all()

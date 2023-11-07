@@ -9,6 +9,16 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Se rappeler de moi')
     submit = SubmitField('Se connecter')
 
+    def validate_username(self, field):
+        user = User.query.filter_by(username=field.data).first()
+        if user is None:
+            raise ValidationError('Nom d\'utilisateur inconnu.')
+
+    def validate_password(self, field):
+        user = User.query.filter_by(username=self.username.data).first()
+        if user is not None and not user.check_password(field.data):
+            raise ValidationError('Mot de passe incorrect.')
+
 class RegistrationForm(FlaskForm):
     username = StringField('Pseudo', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
