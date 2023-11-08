@@ -15,12 +15,17 @@ def index():
 def pedantix_scorer():
     form = PedantixScoreForm()
 
-    if form.validate_on_submit():
-        flash('Pedantix Score submitted successfully!')
-        pedantix_score_value = form.score.data
-        score = Score(score=pedantix_score_value, user_id=current_user.id, score_type='Pedantix')
-        db.session.add(score)
-        db.session.commit()
+    if request.method == 'POST' and form.validate_on_submit():
+        try:
+            pedantix_score_value = form.score.data
+            score = Score(score=pedantix_score_value, user_id=current_user.id, score_type='Pedantix')
+            db.session.add(score)
+            db.session.commit()
+            flash('Pedantix Score submitted successfully!', 'success')
+            print(f'Score added to the database: {pedantix_score_value}')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error submitting Pedantix Score: {str(e)}', 'error')
 
     return render_template('scorer.html', title='Scorer', pedantix_form=form, cemantix_form=CemantixScoreForm())
 

@@ -3,6 +3,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+import logging
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,3 +14,5 @@ login.login_view = 'login'
 
 
 from app import routes, models
+
+logging.basicConfig(level=logging.DEBUG)

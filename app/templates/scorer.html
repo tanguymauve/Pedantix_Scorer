@@ -38,9 +38,10 @@
                             <p>Jour n°543 </p><br>
                             <form action="/scorer/pedantix"" method="post">
                                 {{ pedantix_form.hidden_tag() }}
+                                {{ pedantix_form.csrf_token }}
                                 <p>
                                     {{ pedantix_form.score.label }}<br>
-                                    <input type="number" name="pedantix_score" value="{{ pedantix_form.score.data }}" size="16" id="pedantix_score">
+                                    <input type="number" name="pedantix_score" value="{{ pedantix_form.score.data or '' }}" size="16" id="pedantix_score">
                                 </p>
                                 <p>{{ pedantix_form.submit() }}</p>
                             </form>
@@ -61,9 +62,10 @@
                             <p>Jour n°615 </p><br>
                             <form action="/scorer/cemantix" method="post">
                                 {{ cemantix_form.hidden_tag() }}
+                                {{ cemantix_form.csrf_token }}
                                 <p>
                                     {{ cemantix_form.score.label }}<br>
-                                    <input type="number" name="cemantix_score" value="{{ cemantix_form.score.data }}" size="16" id="cemantix_score">
+                                    <input type="number" name="cemantix_score" value="{{ cemantix_form.score.data or '' }}" size="16" id="cemantix_score">
                                 </p>
                                 <p>{{ cemantix_form.submit() }}</p>
                             </form>
