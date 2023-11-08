@@ -1,5 +1,12 @@
 POUR DEVELOPPEMENT :
-Créer le bloc classement et son affichage
+Créer le bloc classement et son affichage:
+    - Lorsque j'ajoute un score dans le pedantix, le meme score est automatique copié dans le cemantix
+Implémenter un lien vers le site du pedantix
+Trouver un moyen de return le jour du pedantix
+
+
+UX:
+Ajouter des colonnes grecs type "Hadès" autour des deux forms pedantix et cemantix
 
 
 
@@ -7,7 +14,10 @@ Créer le bloc classement et son affichage
 
 
 POUR DEPLOIEMENT :
+
+Sécurité:
 Changer SECRET_KEY dans config.py lors du déploiement
+Rajouter des CAPTCHA et cybersécurité générale.
 
 Vérifier les bugs de messages d'erreurs : 
     - apparaissent sans prévenir => pourquoi ?

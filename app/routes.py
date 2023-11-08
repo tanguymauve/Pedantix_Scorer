@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, flash, redirect, url_for, request
-from app.forms import LoginForm, RegistrationForm, ScoreForm
+from app.forms import LoginForm, RegistrationForm, PedantixScoreForm, CemantixScoreForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Score
 from werkzeug.urls import url_parse
@@ -10,17 +10,33 @@ from werkzeug.urls import url_parse
 def index():
     return render_template('index.html', title='Home')#rajouter ici le nom pour le classment tels que ("index.html", title='Home Page', posts=posts)
 
-@app.route('/scorer', methods=['GET', 'POST'])
+@app.route('/scorer/pedantix', methods=['GET', 'POST'])
 @login_required
-def scorer():
-    form = ScoreForm()
+def pedantix_scorer():
+    form = PedantixScoreForm()
+
     if form.validate_on_submit():
-        flash('Score submitted successfully!')
-        score_value = form.score.data
-        score = Score(score=score_value, user_id=current_user.id)
+        flash('Pedantix Score submitted successfully!')
+        pedantix_score_value = form.score.data
+        score = Score(score=pedantix_score_value, user_id=current_user.id, score_type='Pedantix')
         db.session.add(score)
         db.session.commit()
-    return render_template('scorer.html', title='Scorer', form=form)
+
+    return render_template('scorer.html', title='Scorer', pedantix_form=form, cemantix_form=CemantixScoreForm())
+
+@app.route('/scorer/cemantix', methods=['GET', 'POST'])
+@login_required
+def cemantix_scorer():
+    form = CemantixScoreForm()
+
+    if form.validate_on_submit():
+        flash('Cémantix Score submitted successfully!')
+        cemantix_score_value = form.score.data
+        score = Score(score=cemantix_score_value, user_id=current_user.id, score_type='Cémantix')
+        db.session.add(score)
+        db.session.commit()
+
+    return render_template('scorer.html', title='Scorer', pedantix_form=PedantixScoreForm(), cemantix_form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

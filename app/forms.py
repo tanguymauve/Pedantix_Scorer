@@ -37,6 +37,11 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Ce mail est déja utilisé.')
         
-class ScoreForm(FlaskForm):
-    score = IntegerField('Score', validators=[DataRequired()])
-    submit = SubmitField('Ajouter le score')
+class PedantixScoreForm(FlaskForm):
+    score = IntegerField('Pedantix Score', validators=[DataRequired()], render_kw={"name": "pedantix_score"})
+    submit = SubmitField('Ajouter votre score Pedantix')
+
+class CemantixScoreForm(FlaskForm):
+    score = IntegerField('Cémantix Score', validators=[DataRequired()], render_kw={"name": "cemantix_score"})
+    submit = SubmitField('Ajouter votre score Cémantix')
+
