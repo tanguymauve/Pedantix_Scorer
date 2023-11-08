@@ -36,7 +36,7 @@
                         <div id="pedantix-column">
                             <h3>Entrer votre score Pédantix</h3>
                             <p>Jour n°543 </p><br>
-                            <form action="" method="post">
+                            <form action="/scorer/pedantix"" method="post">
                                 {{ pedantix_form.hidden_tag() }}
                                 <p>
                                     {{ pedantix_form.score.label }}<br>
@@ -59,7 +59,7 @@
                         <div id="cemantix-column">
                             <h3>Entrer votre score Cémantix</h3>
                             <p>Jour n°615 </p><br>
-                            <form action="" method="post">
+                            <form action="/scorer/cemantix" method="post">
                                 {{ cemantix_form.hidden_tag() }}
                                 <p>
                                     {{ cemantix_form.score.label }}<br>
