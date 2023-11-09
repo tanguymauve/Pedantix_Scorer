@@ -22,7 +22,6 @@ def pedantix_scorer():
             db.session.add(score)
             db.session.commit()
             flash('Pedantix Score submitted successfully!', 'success')
-            print(f'Score added to the database: {pedantix_score_value}')
         except Exception as e:
             db.session.rollback()
             flash(f'Error submitting Pedantix Score: {str(e)}', 'error')

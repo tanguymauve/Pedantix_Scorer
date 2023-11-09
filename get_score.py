@@ -4,20 +4,25 @@ from app.models import User, Score
 # Create an application context
 app.app_context().push()
 
-# Retrieve Pedantix scores
-pedantix_scores = Score.query.filter_by(score_type='Pedantix').all()
+def print_scores(username):
+    user = User.query.filter_by(username=username).first()
 
-# Retrieve Cémantix scores
-cemantix_scores = Score.query.filter_by(score_type='Cémantix').all()
+    if user:
+        pedantix_score = Score.query.filter_by(user_id=user.id, score_type='Pedantix').first()
+        cemantix_score = Score.query.filter_by(user_id=user.id, score_type='Cemantix').first()
 
-# Print Pedantix scores
-print("Pedantix Scores:")
-for score in pedantix_scores:
-    user = User.query.get(score.user_id)
-    print(f"User: {user.username}, Score: {score.score}")
+        if pedantix_score:
+            print(f"User - {user.username} Pedantix Score = {pedantix_score.score}")
+        else:
+            print(f"No Pedantix score found for User - {user.username}")
 
-# Print Cémantix scores
-print("Cemantix Scores:")
-for score in cemantix_scores:
-    user = User.query.get(score.user_id)
-    print(f"User: {user.username}, Score: {score.score}")
+        if cemantix_score:
+            print(f"User - {user.username} Cemantix Score = {cemantix_score.score}")
+        else:
+            print(f"No Cemantix score found for User - {user.username}")
+    else:
+        print(f"User with username '{username}' not found.")
+
+if __name__ == "__main__":
+    # Set the username to 'tanguy'
+    print_scores('tanguy')
