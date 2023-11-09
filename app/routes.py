@@ -4,6 +4,8 @@ from app.forms import LoginForm, RegistrationForm, PedantixScoreForm, CemantixSc
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Score
 from werkzeug.urls import url_parse
+from app.score_calculator import calculate_sums
+
 
 @app.route('/')
 @app.route('/index')
@@ -81,3 +83,14 @@ def register():
         flash('Vous êtes maintenant enregistré')
         return redirect(url_for('login'))
     return render_template('register.html', title='Enregistrer', form=form)
+
+@app.route('/score_rankings')
+def score_rankings():
+    # Call the calculate_sums function and get the rankings
+    pedantix_ranking = calculate_sums('Pedantix')
+    cemantix_ranking = calculate_sums('Cemantix')
+
+    print("Pedantix Ranking:", pedantix_ranking)
+    print("Cemantix Ranking:", cemantix_ranking)
+
+    return render_template('index.html', current_user=current_user, pedantix_ranking=pedantix_ranking, cemantix_ranking=cemantix_ranking)
