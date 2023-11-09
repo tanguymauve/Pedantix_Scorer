@@ -45,7 +45,7 @@
                                 </p>
                                 <p>{{ pedantix_form.submit() }}</p>
                             </form>
-                            {% with messages = get_flashed_messages() %}
+                            {% with messages = get_flashed_messages(category_filter=['success_pedantix', 'error_pedantix']) %}
                                 {% if messages %}
                                     {% for message in messages %}
                                         <div class="alert alert-success">
@@ -68,7 +68,7 @@
                                     {{ cemantix_form.score(id="cemantix_score") }}
                                 <p>{{ cemantix_form.submit() }}</p>
                             </form>
-                            {% with messages = get_flashed_messages() %}
+                            {% with messages = get_flashed_messages(category_filter=['success_cemantix', 'error_cemantix']) %}
                                 {% if messages %}
                                     {% for message in messages %}
                                         <div class="alert alert-success">

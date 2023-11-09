@@ -8,18 +8,14 @@ def print_scores(username):
     user = User.query.filter_by(username=username).first()
 
     if user:
-        pedantix_score = Score.query.filter_by(user_id=user.id, score_type='Pedantix').first()
-        cemantix_score = Score.query.filter_by(user_id=user.id, score_type='Cemantix').first()
+        pedantix_scores = Score.query.filter_by(user_id=user.id, score_type='Pedantix').all()
+        cemantix_scores = Score.query.filter_by(user_id=user.id, score_type='Cemantix').all()
 
-        if pedantix_score:
-            print(f"User - {user.username} Pedantix Score = {pedantix_score.score}")
-        else:
-            print(f"No Pedantix score found for User - {user.username}")
+        pedantix_scores_list = [score.score for score in pedantix_scores]
+        cemantix_scores_list = [score.score for score in cemantix_scores]
 
-        if cemantix_score:
-            print(f"User - {user.username} Cemantix Score = {cemantix_score.score}")
-        else:
-            print(f"No Cemantix score found for User - {user.username}")
+        print(f"User - {user.username} Pedantix Score = {pedantix_scores_list}")
+        print(f"User - {user.username} Cemantix Score = {cemantix_scores_list}")
     else:
         print(f"User with username '{username}' not found.")
 
