@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -38,10 +38,16 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Ce mail est déja utilisé.')
         
 class PedantixScoreForm(FlaskForm):
-    score = IntegerField('Pédantix Score', validators=[DataRequired()], render_kw={'type': 'number', 'size': '16'})
+    score = IntegerField('Pédantix Score', validators=[
+            DataRequired(),
+            NumberRange(min=1, message="Please enter a positive number greater than 0.")
+        ], render_kw={'type': 'number', 'size': '16'})
     submit = SubmitField('Ajouter votre score Pedantix')
 
 class CemantixScoreForm(FlaskForm):
-    score = IntegerField('Cémantix Score', validators=[DataRequired()], render_kw={'type': 'number', 'size': '16'})
+    score = IntegerField('Cémantix Score', validators=[
+            DataRequired(),
+            NumberRange(min=1, message="Please enter a positive number greater than 0.")
+        ], render_kw={'type': 'number', 'size': '16'})
     submit = SubmitField('Ajouter votre score Cémantix')
 

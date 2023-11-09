@@ -1,63 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedantix Scorer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
+
 <body>
-  <header class="container text-center py-4">
-      <div class="row">
-        <div class="col justify-content-start" >
-          <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
-        </div>
-        <div class="col">
-          <h3>Accueil</h3>
-        </div>
-        <div class="col">
-          <a href="{{ url_for('pedantix_scorer') }}" class="btn btn-primary">Ajouter un score</a>
-        </div>
-        <div class="col">
-          <div>
-          {% if current_user.is_anonymous %}
-              <a href="{{ url_for('login') }}">Se connecter</a>
-          {% elif current_user.is_authenticated %}
-              <h3>{{ current_user.username }}</h3>
+    <header class="container text-center py-4">
+        <div class="row">
+            <div class="col justify-content-start">
+                <h3><a href="{{ url_for('index') }}" class="text-decoration-none">Pedantix Scorer</a></h3>
             </div>
-            <div>
-              <a href="{{ url_for('logout') }}">Se déconnecter</a>
-          {% endif %}
+            <div class="col">
+                <h3>Accueil</h3>
+            </div>
+            <div class="col">
+                <div> {% if current_user.is_anonymous %} <a href="{{ url_for('login') }}">Se connecter</a> {% elif current_user.is_authenticated %} <h3>{{ current_user.username }}</h3>
+                </div>
+                <div> <a href="{{ url_for('logout') }}">Se déconnecter</a> {% endif %} </div>
+            </div>
+            <div class="row">
+              <div class="col text-center py-3 ms-4"> <a href="{{ url_for('pedantix_scorer') }}" class="btn btn-primary">Ajouter un score</a> </div>
             </div>
         </div>
-      </div>
-  </header>
-      <div class="container">
+    </header>
+    <div class="container">
         <div class="row">
             <div class="col">
                 <h1>Bonjour {{ current_user.username }}!</h1>
             </div>
-        </div>
-        <div class="container text-center">
-          <div class="row">
-              <div class="col border-3 p-3 mr-4">
-                <h3>Classement Pédantix</h3>
-                  <ol class="text-start">
-                    {% for username, scores in pedantix_ranking %}
-                      <li>{{ username }} : {{ scores }}</li>
-                    {% endfor %}
-                  </ol>
-              </div>
-              <div class="col border-3 p-3">
-                <h3>Classement Cémantix</h3>
-                  <ol class = "text-start">
-                    {% for username, scores in cemantix_ranking %}
-                      <li>{{ username }} : {{ scores }}</li>
-                    {% endfor %}
-                  </ol>
+            <div class="container text-center mt-3">
+                <div class="row">
+                    <div class="col border border-3 border-primary rounded-3 p-3 me-4">
+                        <h3>Classement Pédantix</h3>
+                        <ol class="text-start"> {% for username, scores in pedantix_ranking %} <li>{{ username }} : {{ scores }}</li> {% endfor %} </ol>
+                    </div>
+                    <div class="col border border-3 border-warning rounded-3 p-3">
+                        <h3>Classement Cémantix</h3>
+                        <ol class="text-start"> {% for username, scores in cemantix_ranking %} <li>{{ username }} : {{ scores }}</li> {% endfor %} </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="container text-center pt-5">
+                <h6> Play the game ! <br> <a href="https://cemantix.certitudes.org/pedantix"> Pedantix</a> </h6>
             </div>
         </div>
-      </div>
     </div>
-  </body>
+</body>
+
 </html>
