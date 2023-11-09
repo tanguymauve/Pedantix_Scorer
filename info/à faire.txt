@@ -1,6 +1,4 @@
 POUR DEVELOPPEMENT :
-Implémenter un lien vers le site du pedantix
-
 Trouver un moyen de return le jour du pedantix 
 => installer un background runnner comme pm2 ou nohup pour faire tourner le script.
 

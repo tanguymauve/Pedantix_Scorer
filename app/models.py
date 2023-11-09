@@ -29,7 +29,17 @@ class Score(db.Model):
 
     def __repr__(self):
         return '<Score {}>'.format(self.score)
-    
+
+class WeeklyPoints(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
+    combined_points = db.Column(db.Integer, default=0)
+    last_update_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<WeeklyPoints {self.user_id}>'
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
