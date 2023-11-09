@@ -44,8 +44,20 @@
                     </div>
                 </div>
             </div>
+            <div class="row py-4">
+                <div class="col"></div>
+                <div class="col">
+                    <h4>Classement de la semaine :</h4>
+                    <ol class="text-start">
+                        {% for username, scores in overall_weekly_ranking %}
+                            <li>{{ username }}: {{ scores }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <div class="col"></div>
+            </div>
             <div class="container text-center pt-5">
-                <h6> Play the game ! <br> <a href="https://cemantix.certitudes.org/pedantix"> Pedantix</a> </h6>
+                <h6> Play the game ! <br> <a href="https://cemantix.certitudes.org/pedantix" target="_blank">Pédantix</a> </h6>
             </div>
         </div>
     </div>

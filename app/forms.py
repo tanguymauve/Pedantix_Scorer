@@ -13,7 +13,7 @@ class LoginForm(FlaskForm):
         user = User.query.filter_by(username=field.data).first()
         if user is None:
             raise ValidationError('Nom d\'utilisateur inconnu.')
-
+    
     def validate_password(self, field):
         user = User.query.filter_by(username=self.username.data).first()
         if user is not None and not user.check_password(field.data):

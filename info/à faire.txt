@@ -1,8 +1,12 @@
 POUR DEVELOPPEMENT :
 Implémenter un lien vers le site du pedantix
-Trouver un moyen de return le jour du pedantix
-Trouver un moyen de trier en fonction du nombre de participation : les moins joueurs sont techniquement avantagés
+
+Trouver un moyen de return le jour du pedantix 
+=> installer un background runnner comme pm2 ou nohup pour faire tourner le script.
+
 Ajouter un Google Form pour établir le prix du meilleur pedanteur
+
+
 
 UX:
 Ajouter des colonnes grecs type "Hadès" autour des deux forms pedantix et cemantix
