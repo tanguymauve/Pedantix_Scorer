@@ -38,10 +38,10 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Ce mail est déja utilisé.')
         
 class PedantixScoreForm(FlaskForm):
-    score = IntegerField('Pedantix Score', validators=[DataRequired()], render_kw={"name": "pedantix_score"})
+    score = IntegerField('Pédantix Score', validators=[DataRequired()], render_kw={'type': 'number', 'size': '16'})
     submit = SubmitField('Ajouter votre score Pedantix')
 
 class CemantixScoreForm(FlaskForm):
-    score = IntegerField('Cémantix Score', validators=[DataRequired()], render_kw={"name": "cemantix_score"})
+    score = IntegerField('Cémantix Score', validators=[DataRequired()], render_kw={'type': 'number', 'size': '16'})
     submit = SubmitField('Ajouter votre score Cémantix')
 

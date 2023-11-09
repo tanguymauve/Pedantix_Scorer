@@ -36,12 +36,12 @@
                         <div id="pedantix-column">
                             <h3>Entrer votre score Pédantix</h3>
                             <p>Jour n°543 </p><br>
-                            <form action="/scorer/pedantix"" method="post">
+                            <form action="/scorer/pedantix" method="post">
                                 {{ pedantix_form.hidden_tag() }}
                                 {{ pedantix_form.csrf_token }}
                                 <p>
                                     {{ pedantix_form.score.label }}<br>
-                                    <input type="number" name="pedantix_score" value="{{ pedantix_form.score.data or '' }}" size="16" id="pedantix_score">
+                                    {{ pedantix_form.score(id="pedantix_score")  }}
                                 </p>
                                 <p>{{ pedantix_form.submit() }}</p>
                             </form>
@@ -65,8 +65,7 @@
                                 {{ cemantix_form.csrf_token }}
                                 <p>
                                     {{ cemantix_form.score.label }}<br>
-                                    <input type="number" name="cemantix_score" value="{{ cemantix_form.score.data or '' }}" size="16" id="cemantix_score">
-                                </p>
+                                    {{ cemantix_form.score(id="cemantix_score") }}
                                 <p>{{ cemantix_form.submit() }}</p>
                             </form>
                             {% with messages = get_flashed_messages() %}

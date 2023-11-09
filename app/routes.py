@@ -21,10 +21,10 @@ def pedantix_scorer():
             score = Score(score=pedantix_score_value, user_id=current_user.id, score_type='Pedantix')
             db.session.add(score)
             db.session.commit()
-            flash('Pedantix Score submitted successfully!', 'success')
+            flash('Score Pédantix ajouté', 'success')
         except Exception as e:
             db.session.rollback()
-            flash(f'Error submitting Pedantix Score: {str(e)}', 'error')
+            flash(f'Erreur en ajoutant le score Pédantix: {str(e)}', 'error')
 
     return render_template('scorer.html', title='Scorer', pedantix_form=form, cemantix_form=CemantixScoreForm())
 
@@ -33,12 +33,16 @@ def pedantix_scorer():
 def cemantix_scorer():
     form = CemantixScoreForm()
 
-    if form.validate_on_submit():
-        flash('Cémantix Score submitted successfully!')
-        cemantix_score_value = form.score.data
-        score = Score(score=cemantix_score_value, user_id=current_user.id, score_type='Cémantix')
-        db.session.add(score)
-        db.session.commit()
+    if request.method == 'POST' and form.validate_on_submit():
+        try:
+            cemantix_score_value = form.score.data
+            score = Score(score=cemantix_score_value, user_id=current_user.id, score_type='Cemantix')
+            db.session.add(score)
+            db.session.commit()
+            flash('Score Cémantix ajouté', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur en ajoutant le score Cémantix: {str(e)}', 'error')
 
     return render_template('scorer.html', title='Scorer', pedantix_form=PedantixScoreForm(), cemantix_form=form)
 
