@@ -1,9 +1,8 @@
 POUR DEVELOPPEMENT :
-Créer le bloc classement et son affichage:
-    - Lorsque j'ajoute un score dans le pedantix, le meme score est automatique copié dans le cemantix
 Implémenter un lien vers le site du pedantix
 Trouver un moyen de return le jour du pedantix
-
+Trouver un moyen de trier en fonction du nombre de participation : les moins joueurs sont techniquement avantagés
+Ajouter un Google Form pour établir le prix du meilleur pedanteur
 
 UX:
 Ajouter des colonnes grecs type "Hadès" autour des deux forms pedantix et cemantix

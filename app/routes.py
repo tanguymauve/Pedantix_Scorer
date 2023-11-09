@@ -6,11 +6,14 @@ from app.models import User, Score
 from werkzeug.urls import url_parse
 from app.score_calculator import calculate_sums
 
-
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='Home')#rajouter ici le nom pour le classment tels que ("index.html", title='Home Page', posts=posts)
+    # Call the calculate_sums function and get the rankings
+    pedantix_ranking = calculate_sums('Pedantix')
+    cemantix_ranking = calculate_sums('Cemantix')
+
+    return render_template('index.html', title='Home', current_user=current_user, pedantix_ranking=pedantix_ranking, cemantix_ranking=cemantix_ranking)
 
 @app.route('/scorer/pedantix', methods=['GET', 'POST'])
 @login_required
@@ -63,7 +66,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template('login.html', title='Se connecter', form=form)    
+    return render_template('login.html', title='Se connecter', form=form)
 
 @app.route('/logout')
 def logout():

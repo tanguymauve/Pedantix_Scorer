@@ -1,15 +1,20 @@
 from app import db
 from app.models import User, Score
 from datetime import datetime
+from sqlalchemy import func
 
 def calculate_sums(score_type):
     users = User.query.all()
-    user_sums = {}
 
-    for user in users:
-        score = Score.query.filter_by(user_id=user.id, score_type=score_type).first()
-        score_value = score.score if score else 0
-        user_sums[user.username] = score_value
+    # Use func.sum to calculate the sum of scores for each user
+    user_sums = (
+        db.session.query(User.username, func.sum(Score.score).label('total_score'))
+        .join(Score, User.id == Score.user_id)
+        .filter(Score.score_type == score_type)
+        .group_by(User.username)
+        .all()
+    )
 
-    sorted_users = sorted(user_sums.items(), key=lambda x: x[1], reverse=True)
+    sorted_users = sorted(user_sums, key=lambda x: x.total_score)  # Reverse the order
+    print(f"calculate_sums - Score Type: {score_type}, Sorted Users: {sorted_users}")
     return sorted_users
