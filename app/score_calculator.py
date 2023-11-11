@@ -9,7 +9,7 @@ import time
 
 # Constants for reset times
 PEDANTIX_RESET_HOUR = 0  # 12:00 AM UTC
-CEMANTIX_RESET_HOUR = 17  # 12:00 PM UTC
+CEMANTIX_RESET_HOUR = 18  # 12:00 PM UTC
 
 def calculate_sums(score_type):
     # Use func.sum to calculate the sum of scores for each user
@@ -125,8 +125,9 @@ def calculate_combined_points():
     return total_combined_points
 
 def update_daily_rankings():
-    update_daily_rankings_for_score_type('Pedantix')
-    update_daily_rankings_for_score_type('Cemantix')
+    with app.app_context():
+        update_daily_rankings_for_score_type('Pedantix')
+        update_daily_rankings_for_score_type('Cemantix')
 
 def update_daily_rankings_for_score_type(score_type):
     current_time = datetime.utcnow()
@@ -185,7 +186,7 @@ def reset_scores_for_score_type(score_type):
 def scheduler_loop():
     # Schedule tasks
     schedule.every().day.at("00:50").do(reset_scores)
-    schedule.every().day.at("17:55").do(reset_scores)
+    schedule.every().day.at("18:16").do(reset_scores)
     schedule.every().hour.at(":01").do(update_daily_rankings)
 
     while True:
