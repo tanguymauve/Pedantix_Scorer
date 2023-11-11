@@ -16,6 +16,20 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def add_weekly_points(self, points):
+        # Check if the user has an associated WeeklyPoints entry
+        weekly_points_entry = WeeklyPoints.query.filter_by(user_id=self.id).first()
+
+        if weekly_points_entry:
+            # Update the existing WeeklyPoints entry
+            weekly_points_entry.combined_points += points
+        else:
+            # Create a new WeeklyPoints entry if it doesn't exist
+            new_weekly_points = WeeklyPoints(user_id=self.id, combined_points=points)
+            db.session.add(new_weekly_points)
+
+        db.session.commit()
+
     def __repr__(self):
         return f'<User {self.username}>'
 

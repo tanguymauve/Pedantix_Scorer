@@ -1,0 +1,4 @@
+Ne peut pas afficher le classement de la semaine 
+sans les deux rankings Pedantix et Cemantix
+
+Ajoute les scores dans la database pour les points => changer les noms ?

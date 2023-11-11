@@ -9,11 +9,9 @@ import time
 
 # Constants for reset times
 PEDANTIX_RESET_HOUR = 0  # 12:00 AM UTC
-CEMANTIX_RESET_HOUR = 12  # 12:00 PM UTC
+CEMANTIX_RESET_HOUR = 17  # 12:00 PM UTC
 
 def calculate_sums(score_type):
-    users = User.query.all()
-
     # Use func.sum to calculate the sum of scores for each user
     user_sums = (
         db.session.query(User.username, func.sum(Score.score).label('total_score'))
@@ -23,26 +21,24 @@ def calculate_sums(score_type):
         .all()
     )
 
-    sorted_users = sorted(user_sums, key=lambda x: x.total_score)  # Reverse the order
+    sorted_users = sorted(user_sums, key=lambda x: x.total_score) if user_sums else []
     print(f"calculate_sums - Score Type: {score_type}, Sorted Users: {sorted_users}")
     return sorted_users
 
+def calculate_ranking_and_points(score_type):
+    ranking = calculate_sums(score_type)
+    points = {username: 0 for username, _ in ranking}
+
+    for i, (username, _) in enumerate(ranking):
+        points[username] += 3 - i
+
+    return points
+
 def calculate_overall_weekly_ranking():
-    users = User.query.all()
+    pedantix_points = calculate_ranking_and_points('Pedantix')
+    cemantix_points = calculate_ranking_and_points('Cemantix')
 
-    pedantix_ranking = calculate_sums('Pedantix')
-    cemantix_ranking = calculate_sums('Cemantix')
-
-    pedantix_points = {username: 0 for username, _ in pedantix_ranking}
-    cemantix_points = {username: 0 for username, _ in cemantix_ranking}
-
-    for i, (username, _) in enumerate(pedantix_ranking):
-        pedantix_points[username] += 3 - i
-
-    for i, (username, _) in enumerate(cemantix_ranking):
-        cemantix_points[username] += 3 - i
-
-    combined_points = {username: pedantix_points[username] + cemantix_points[username] for username in pedantix_points}
+    combined_points = {username: pedantix_points.get(username, 0) + cemantix_points.get(username, 0) for username in pedantix_points}
 
     sorted_users = sorted(combined_points.items(), key=lambda x: x[1], reverse=True)
 
@@ -52,14 +48,13 @@ def calculate_overall_weekly_ranking():
 
         if not weekly_points:
             weekly_points = WeeklyPoints(user_id=user.id)
-            weekly_points.combined_points = points
-        else:
-            weekly_points.combined_points += points
+        weekly_points.combined_points += points
 
         db.session.add(weekly_points)
         db.session.commit()
 
     return sorted_users
+
 
 def get_user_score(username, score_type):
     user = User.query.filter_by(username=username).first()
@@ -87,34 +82,44 @@ def update_last_weekly_update_date(current_date):
 
     db.session.commit()
 
-def update_weekly_points(score_type):
-    update_daily_rankings_for_score_type(score_type)
+def update_weekly_points():
+    update_daily_rankings_for_score_type('Pedantix')
+    update_daily_rankings_for_score_type('Cemantix')
 
-    weekly_points = WeeklyPoints.query.first()
-    if not weekly_points:
-        weekly_points = WeeklyPoints(combined_points=0)
+    # Get the weekly points from the database for each user
+    weekly_points = (
+        db.session.query(User.username, WeeklyPoints.combined_points.label('points_awarded'))
+        .join(User, User.id == WeeklyPoints.user_id)
+        .all()
+    )
 
-    combined_points = calculate_combined_points()
-    weekly_points.combined_points += combined_points
-    weekly_points.last_update_date = datetime.utcnow()
+    # Update the WeeklyPoints table with the calculated weekly points
+    for username, points_awarded in weekly_points:
+        user = User.query.filter_by(username=username).first()
+        weekly_points_entry = WeeklyPoints.query.filter_by(user_id=user.id).first()
 
-    db.session.add(weekly_points)
+        if not weekly_points_entry:
+            # Create a new entry if it doesn't exist
+            weekly_points_entry = WeeklyPoints(user_id=user.id, combined_points=0)
+
+        # Add the points awarded in the current round to the existing combined_points
+        weekly_points_entry.combined_points += points_awarded
+        weekly_points_entry.last_update_date = datetime.utcnow()
+
+        db.session.add(weekly_points_entry)
+
     db.session.commit()
 
+
+
+
 def calculate_combined_points():
-    pedantix_ranking = calculate_sums('Pedantix')
-    cemantix_ranking = calculate_sums('Cemantix')
+    pedantix_points = calculate_ranking_and_points('Pedantix')
+    cemantix_points = calculate_ranking_and_points('Cemantix')
 
-    pedantix_points = {username: 0 for username, _ in pedantix_ranking}
-    cemantix_points = {username: 0 for username, _ in cemantix_ranking}
+    all_usernames = set(pedantix_points.keys()) | set(cemantix_points.keys())
 
-    for i, (username, _) in enumerate(pedantix_ranking):
-        pedantix_points[username] += 3 - i
-
-    for i, (username, _) in enumerate(cemantix_ranking):
-        cemantix_points[username] += 3 - i
-
-    combined_points = {username: pedantix_points[username] + cemantix_points[username] for username in pedantix_points}
+    combined_points = {username: pedantix_points.get(username, 0) + cemantix_points.get(username, 0) for username in all_usernames}
 
     total_combined_points = sum(combined_points.values())
     return total_combined_points
@@ -131,19 +136,16 @@ def update_daily_rankings_for_score_type(score_type):
         db.session.query(Score.user_id, func.sum(Score.score).label('total_score'))
         .filter(Score.score_type == score_type, Score.timestamp >= start_time)
         .group_by(Score.user_id)
-        .order_by(func.sum(Score.score).desc())
+        .order_by(func.sum(Score.score))
         .limit(3)
         .all()
     )
 
     for rank, (user_id, _) in enumerate(scores_within_24_hours, start=1):
         user = User.query.get(user_id)
-        if rank == 1:
-            user.add_points(3)
-        elif rank == 2:
-            user.add_points(2)
-        elif rank == 3:
-            user.add_points(1)
+        points_awarded = 4 - rank  # 3 points for the lowest score, 2 for the second, 1 for the third
+        user.add_weekly_points(points_awarded)
+
 
 def reset_scores():
     print("Reset scores function called")
@@ -157,44 +159,48 @@ def reset_scores():
 
     if local_hour == PEDANTIX_RESET_HOUR:
         print(f"Resetting scores for Pedantix at local hour {local_hour}")
-        with current_app.app_context():
+        with app.app_context():
             reset_scores_for_score_type('Pedantix')
     elif local_hour == CEMANTIX_RESET_HOUR:
         print(f"Resetting scores for Cemantix at local hour {local_hour}")
-        with current_app.app_context():
+        with app.app_context():
             reset_scores_for_score_type('Cemantix')
 
 
 
 def reset_scores_for_score_type(score_type):
     print(f"Reset scores for {score_type} called")
-    scores_to_reset = Score.query.filter_by(score_type=score_type).all()
-    print(f"Scores to reset: {scores_to_reset}")
-    
-    for score in scores_to_reset:
-        db.session.delete(score)
-    
-    db.session.commit()
-
-    print(f"Scores reset for {score_type}")
-
-
-# Schedule tasks
-schedule.every().day.at("02:38").do(reset_scores)  # Schedule reset_scores every day at 12:05 AM UTC
-schedule.every().day.at("12:01").do(reset_scores)  # Schedule reset_scores every day at 12:05 PM UTC
-schedule.every().hour.at(":01").do(update_daily_rankings)  # Schedule update_daily_rankings every hour at xx:30
-
-# Continuous loop to execute scheduled tasks
-def run_schedule():
     with app.app_context():
-        while True:
-            try:
-                schedule.run_pending()
-            except Exception as e:
-                print(f"Error in schedule execution: {e}")
+        scores_to_reset = Score.query.filter_by(score_type=score_type).all()
+        print(f"Number of scores to reset for {score_type}: {len(scores_to_reset)}")
+        
+        for score in scores_to_reset:
+            db.session.delete(score)
+        
+        db.session.commit()
 
-            time.sleep(1)
+        print(f"Scores reset for {score_type}")
 
-# Start the continuous loop in a separate thread
-schedule_thread = Thread(target=run_schedule)
+
+def scheduler_loop():
+    # Schedule tasks
+    schedule.every().day.at("00:50").do(reset_scores)
+    schedule.every().day.at("17:55").do(reset_scores)
+    schedule.every().hour.at(":01").do(update_daily_rankings)
+
+    while True:
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print(f"Error in schedule execution: {e}")
+
+        # Sleep for 1 second between iterations
+        time.sleep(1)
+
+# Start the scheduler loop in a separate thread
+schedule_thread = Thread(target=scheduler_loop)
 schedule_thread.start()
+
+# Run the Flask app using the built-in development server
+if __name__ == "__main__":
+    app.run(debug=True, use_reloader=False)

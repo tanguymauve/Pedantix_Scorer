@@ -14,8 +14,7 @@ def index():
     cemantix_ranking = calculate_sums('Cemantix')
     overall_weekly_ranking = calculate_overall_weekly_ranking()
 
-    return render_template('index.html', title='Home', current_user=current_user, pedantix_ranking=pedantix_ranking, cemantix_ranking=cemantix_ranking, 
-                                                                                                        overall_weekly_ranking=overall_weekly_ranking)
+    return render_template('index.html', title='Home', current_user=current_user, pedantix_ranking=pedantix_ranking, cemantix_ranking=cemantix_ranking, overall_weekly_ranking=overall_weekly_ranking)
 
 @app.route('/scorer/pedantix', methods=['GET', 'POST'])
 @login_required
