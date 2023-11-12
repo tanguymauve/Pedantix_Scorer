@@ -30,7 +30,11 @@ def calculate_ranking_and_points(score_type):
     points = {username: 0 for username, _ in ranking}
 
     for i, (username, _) in enumerate(ranking):
-        points[username] += 3 - i
+        user = User.query.filter_by(username=username).first()
+        weekly_points = WeeklyPoints.query.filter_by(user_id=user.id).first()
+
+        if weekly_points:
+            points[username] += weekly_points.combined_points
 
     return points
 
@@ -41,17 +45,6 @@ def calculate_overall_weekly_ranking():
     combined_points = {username: pedantix_points.get(username, 0) + cemantix_points.get(username, 0) for username in pedantix_points}
 
     sorted_users = sorted(combined_points.items(), key=lambda x: x[1], reverse=True)
-
-    for username, points in sorted_users:
-        user = User.query.filter_by(username=username).first()
-        weekly_points = WeeklyPoints.query.filter_by(user_id=user.id).first()
-
-        if not weekly_points:
-            weekly_points = WeeklyPoints(user_id=user.id)
-        weekly_points.combined_points += points
-
-        db.session.add(weekly_points)
-        db.session.commit()
 
     return sorted_users
 
@@ -109,9 +102,6 @@ def update_weekly_points():
         db.session.add(weekly_points_entry)
 
     db.session.commit()
-
-
-
 
 def calculate_combined_points():
     pedantix_points = calculate_ranking_and_points('Pedantix')
