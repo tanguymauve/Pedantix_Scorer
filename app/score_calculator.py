@@ -9,7 +9,7 @@ import time
 
 # Constants for reset times
 PEDANTIX_RESET_HOUR = 0  # 12:00 AM UTC
-CEMANTIX_RESET_HOUR = 18  # 12:00 PM UTC
+CEMANTIX_RESET_HOUR = 13 # 12:00 PM UTC
 
 def calculate_sums(score_type):
     # Use func.sum to calculate the sum of scores for each user
@@ -75,20 +75,19 @@ def update_last_weekly_update_date(current_date):
 
     db.session.commit()
 
-def update_weekly_points():
+def update_weekly_points_pedantix():
     with app.app_context():
         update_daily_rankings_for_score_type('Pedantix')
-        update_daily_rankings_for_score_type('Cemantix')
-
+        
         # Get the weekly points from the database for each user
-        weekly_points = (
+        pedantix_weekly_points = (
             db.session.query(User.id, User.username, WeeklyPoints.combined_points.label('points_awarded'))
             .join(User, User.id == WeeklyPoints.user_id)
             .all()
         )
 
-        # Update the WeeklyPoints table with the calculated weekly points
-        for user_id, username, points_awarded in weekly_points:
+        # Update the WeeklyPoints table with the calculated weekly points for Pedantix
+        for user_id, username, points_awarded in pedantix_weekly_points:
             user = User.query.get(user_id)
             weekly_points_entry = WeeklyPoints.query.filter_by(user_id=user_id).first()
 
@@ -104,7 +103,33 @@ def update_weekly_points():
 
         db.session.commit()
 
+def update_weekly_points_cemantix():
+    with app.app_context():
+        update_daily_rankings_for_score_type('Cemantix')
 
+        # Get the weekly points from the database for each user
+        cemantix_weekly_points = (
+            db.session.query(User.id, User.username, WeeklyPoints.combined_points.label('points_awarded'))
+            .join(User, User.id == WeeklyPoints.user_id)
+            .all()
+        )
+
+        # Update the WeeklyPoints table with the calculated weekly points for Cemantix
+        for user_id, username, points_awarded in cemantix_weekly_points:
+            user = User.query.get(user_id)
+            weekly_points_entry = WeeklyPoints.query.filter_by(user_id=user_id).first()
+
+            if not weekly_points_entry:
+                # Create a new entry if it doesn't exist
+                weekly_points_entry = WeeklyPoints(user_id=user_id, combined_points=0)
+
+            # Add the points awarded in the current round to the existing combined_points
+            weekly_points_entry.combined_points += points_awarded
+            weekly_points_entry.last_update_date = datetime.utcnow()
+
+            db.session.add(weekly_points_entry)
+
+        db.session.commit()
 
 def calculate_combined_points():
     pedantix_points = calculate_ranking_and_points('Pedantix')
@@ -161,8 +186,6 @@ def reset_scores():
         with app.app_context():
             reset_scores_for_score_type('Cemantix')
 
-
-
 def reset_scores_for_score_type(score_type):
     print(f"Reset scores for {score_type} called")
     with app.app_context():
@@ -176,12 +199,12 @@ def reset_scores_for_score_type(score_type):
 
         print(f"Scores reset for {score_type}")
 
-
 def scheduler_loop():
     # Schedule tasks
     schedule.every().day.at("00:01").do(reset_scores)
-    schedule.every().day.at("13:05").do(reset_scores)
-    schedule.every().day.at("13:21").do(update_weekly_points)
+    schedule.every().day.at("12:05").do(reset_scores)
+    schedule.every().day.at("00:00").do(update_weekly_points_pedantix)
+    schedule.every().day.at("13:50").do(update_weekly_points_cemantix)
 
     while True:
         try:
@@ -199,4 +222,3 @@ schedule_thread.start()
 # Run the Flask app using the built-in development server
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
-

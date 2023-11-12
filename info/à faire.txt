@@ -1,8 +1,8 @@
 POUR DEVELOPPEMENT :
 Trouver un moyen de return le jour du pedantix 
 => installer un background runnner comme pm2 ou nohup pour faire tourner le script.
-Ajouter un auto reloader après le reset
-Prompt = Yes. I had to reload the page myself. Can you add an auto page reload when the reset is done ?
+
+Faire attention ! Rajouter un updater pour le pedantix et un pour le pedantix.
 
 Ajouter un Google Form pour établir le prix du meilleur pedanteur + lien vers un groupe whatsapp pour les récompenses
 
