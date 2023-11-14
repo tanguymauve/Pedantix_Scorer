@@ -1,7 +1,7 @@
 from app import app, db
 from app.models import User, Score, WeeklyPoints
 from datetime import datetime, timezone, timedelta
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from threading import Thread
 from flask import current_app
 import schedule
@@ -9,7 +9,7 @@ import time
 
 # Constants for reset times
 PEDANTIX_RESET_HOUR = 0  # 12:00 AM UTC
-CEMANTIX_RESET_HOUR = 13 # 12:00 PM UTC
+CEMANTIX_RESET_HOUR = 12 # 12:00 PM UTC
 
 def calculate_sums(score_type):
     # Use func.sum to calculate the sum of scores for each user
@@ -75,16 +75,32 @@ def update_last_weekly_update_date(current_date):
 
     db.session.commit()
 
+pedantix_ranking = {}
+cemantix_ranking = {}
+
 def update_weekly_points_pedantix():
+    print("Updating weekly points for Pedantix...")
     with app.app_context():
         update_daily_rankings_for_score_type('Pedantix')
-        
+
+        # Get the current time
+        current_time = datetime.utcnow()
+
+        # Set the time interval (e.g., 1 hour) during which the weekly points won't be updated again
+        update_interval = timedelta(hours=1)
+
         # Get the weekly points from the database for each user
         pedantix_weekly_points = (
             db.session.query(User.id, User.username, WeeklyPoints.combined_points.label('points_awarded'))
             .join(User, User.id == WeeklyPoints.user_id)
+            .filter(Score.score_type == 'Pedantix')  # Filter by score type
+            .distinct(User.id, WeeklyPoints.combined_points)  # Add distinct to avoid duplicates
             .all()
         )
+
+        print("DEBUG: Printing pedantix_weekly_points")
+        for user_id, username, points_awarded in pedantix_weekly_points:
+            print(f"User ID: {user_id}, Username: {username}, Points Awarded: {points_awarded}")
 
         # Update the WeeklyPoints table with the calculated weekly points for Pedantix
         for user_id, username, points_awarded in pedantix_weekly_points:
@@ -93,41 +109,80 @@ def update_weekly_points_pedantix():
 
             if not weekly_points_entry:
                 # Create a new entry if it doesn't exist
-                weekly_points_entry = WeeklyPoints(user_id=user_id, combined_points=0)
+                weekly_points_entry = WeeklyPoints(user_id=user_id, combined_points=0, last_update_date=current_time)
 
-            # Add the points awarded in the current round to the existing combined_points
-            weekly_points_entry.combined_points += points_awarded
-            weekly_points_entry.last_update_date = datetime.utcnow()
+            # Check if the last update is within the specified interval
+            if (current_time - weekly_points_entry.last_update_date) > update_interval:
+                # Add the points awarded in the current round to the existing combined_points
+                rank_points = 4 - int(points_awarded)  # Assign points based on rank
+                rank_points = max(rank_points, 0)  # Ensure points_awarded is not negative
 
-            db.session.add(weekly_points_entry)
+                # Assign points only if the user hasn't received points in this interval
+                if rank_points > 0:
+                    weekly_points_entry.combined_points += rank_points
+                    weekly_points_entry.last_update_date = current_time
+
+                    print(f"DEBUG: Updated WeeklyPoints for User {username} - New Combined Points: {weekly_points_entry.combined_points}")
+
+                    db.session.add(weekly_points_entry)
 
         db.session.commit()
 
 def update_weekly_points_cemantix():
+    print("Updating weekly points for Cemantix...")
     with app.app_context():
         update_daily_rankings_for_score_type('Cemantix')
 
-        # Get the weekly points from the database for each user
-        cemantix_weekly_points = (
-            db.session.query(User.id, User.username, WeeklyPoints.combined_points.label('points_awarded'))
-            .join(User, User.id == WeeklyPoints.user_id)
+        # Get the current time
+        current_time = datetime.utcnow()
+
+        # Set the time interval (e.g., 1 hour) during which the weekly points won't be updated again
+        update_interval = timedelta(hours=1)
+
+        # Get the required data from the database
+        cemantix_data = (
+            db.session.query(
+                User.id,
+                User.username,
+                Score.rank,  # Make sure to include the 'rank' attribute
+                WeeklyPoints.combined_points.label('points_awarded')
+            )
+            .join(User, User.id == Score.user_id)
+            .join(WeeklyPoints, and_(WeeklyPoints.user_id == Score.user_id, WeeklyPoints.user_id == User.id))
+            .filter(Score.score_type == 'Cemantix')
+            .distinct(User.id, WeeklyPoints.combined_points)
             .all()
         )
 
+
+
+        print("DEBUG: Printing cemantix_data")
+        for user_id, username, rank, points_awarded in cemantix_data:
+            print(f"User ID: {user_id}, Username: {username}, Rank: {rank}, Points Awarded: {points_awarded}")
+
         # Update the WeeklyPoints table with the calculated weekly points for Cemantix
-        for user_id, username, points_awarded in cemantix_weekly_points:
+        for user_id, username, rank, points_awarded in cemantix_data:
             user = User.query.get(user_id)
             weekly_points_entry = WeeklyPoints.query.filter_by(user_id=user_id).first()
 
             if not weekly_points_entry:
                 # Create a new entry if it doesn't exist
-                weekly_points_entry = WeeklyPoints(user_id=user_id, combined_points=0)
+                weekly_points_entry = WeeklyPoints(user_id=user_id, combined_points=0, last_update_date=current_time)
 
-            # Add the points awarded in the current round to the existing combined_points
-            weekly_points_entry.combined_points += points_awarded
-            weekly_points_entry.last_update_date = datetime.utcnow()
+            # Check if the last update is within the specified interval
+            if (current_time - weekly_points_entry.last_update_date) > update_interval:
+                # Add the points awarded in the current round to the existing combined_points
+                rank_points = 4 - int(points_awarded)  # Assign points based on rank
+                rank_points = max(rank_points, 0)  # Ensure points_awarded is not negative
 
-            db.session.add(weekly_points_entry)
+                # Assign points only if the user hasn't received points in this interval
+                if rank_points > 0:
+                    weekly_points_entry.combined_points += rank_points
+                    weekly_points_entry.last_update_date = current_time
+
+                    print(f"DEBUG: Updated WeeklyPoints for User {username} - New Combined Points: {weekly_points_entry.combined_points}")
+
+                    db.session.add(weekly_points_entry)
 
         db.session.commit()
 
@@ -149,23 +204,36 @@ def update_daily_rankings():
 
 def update_daily_rankings_for_score_type(score_type):
     with app.app_context():
+        # Get the weekly points from the database for each user
+        weekly_points_query = (
+            db.session.query(User.id, User.username, WeeklyPoints.combined_points.label('points_awarded'))
+            .join(User, User.id == WeeklyPoints.user_id)
+            .filter(Score.score_type == score_type)  # Filter by score type
+            .all()
+        )
+
+        for user_id, username, points_awarded in weekly_points_query:
+             print(f"User: {username}, Points Awarded: {points_awarded}, Type: {type(points_awarded)}")
+        
         current_time = datetime.utcnow()
         start_time = (current_time - timedelta(days=1)).timestamp()
 
+        # Retrieve the top 3 scores within the last 24 hours for the specified score type
         scores_within_24_hours = (
             db.session.query(Score.user_id, func.sum(Score.score).label('total_score'))
             .filter(Score.score_type == score_type, Score.timestamp >= start_time)
             .group_by(Score.user_id)
-            .order_by(func.sum(Score.score))
+            .order_by(func.sum(Score.score).asc())  # Order in ascending order, lowest score first
             .limit(3)
             .all()
         )
-
+        # Manually assign points based on rank
         for rank, (user_id, _) in enumerate(scores_within_24_hours, start=1):
             user = User.query.get(user_id)
             points_awarded = 4 - rank  # 3 points for the lowest score, 2 for the second, 1 for the third
+            points_awarded = max(points_awarded, 0)  # Ensure points_awarded is not negative
+            print(f"Rank: {rank}, Points Awarded: {points_awarded}")
             user.add_weekly_points(points_awarded)
-
 
 def reset_scores():
     print("Reset scores function called")
@@ -203,18 +271,20 @@ def scheduler_loop():
     # Schedule tasks
     schedule.every().day.at("00:01").do(reset_scores)
     schedule.every().day.at("12:05").do(reset_scores)
-    schedule.every().day.at("00:00").do(update_weekly_points_pedantix)
-    schedule.every().day.at("13:50").do(update_weekly_points_cemantix)
+    schedule.every().day.at("00:01").do(update_weekly_points_pedantix)
+    schedule.every().day.at("12:55").do(update_weekly_points_cemantix)
 
     while True:
         try:
             schedule.run_pending()
+            print('Running')
         except Exception as e:
             print(f"Error in schedule execution: {e}")
 
         # Sleep for 1 second between iterations
         time.sleep(1)
 
+# Start the scheduler loop in a separate thread
 # Start the scheduler loop in a separate thread
 schedule_thread = Thread(target=scheduler_loop)
 schedule_thread.start()
